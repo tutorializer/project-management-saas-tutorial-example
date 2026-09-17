@@ -3,9 +3,9 @@
 // oxlint-disable-next-line import-js/no-extraneous-dependencies
 import { expect, test } from '@playwright/test'
 
-const tutorialUrl = '/tutorials/create-and-complete-task?waitForStart&speed=20'
+const tutorialUrl = '/tutorials/create-and-complete-task?waitForStart&speed=1'
 
-test.setTimeout(120_000)
+test.setTimeout(180_000)
 
 const readTutorialOutcome = page =>
   page.evaluate(() => {
@@ -37,9 +37,11 @@ test('Create and complete a task', async ({ page }) => {
   await expect
     .poll(() => readTutorialOutcome(page), {
       message: 'the Tutorializer runtime should complete without a tour error',
-      timeout: 120_000,
+      timeout: 170_000,
     })
-    .toEqual({ status: 'complete' })
+    .not.toBeNull()
+
+  expect(await readTutorialOutcome(page)).toEqual({ status: 'complete' })
 
   await expect(
     product.locator(
