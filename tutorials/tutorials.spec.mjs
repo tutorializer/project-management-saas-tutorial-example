@@ -3,6 +3,8 @@
 // oxlint-disable-next-line import-js/no-extraneous-dependencies
 import { expect, test } from '@playwright/test'
 
+import { speechEntries } from './speeches.js'
+
 const tutorialUrl = '/tutorials/create-and-complete-task?waitForStart&speed=1'
 
 test.setTimeout(180_000)
@@ -22,7 +24,14 @@ const readTutorialOutcome = page =>
 
 test('Create and complete a task', async ({ page }) => {
   const pageErrors = []
+  const requestedSpeechUrls = new Set()
   page.on('pageerror', error => pageErrors.push(error.message))
+  page.on('request', request => {
+    const pathname = new URL(request.url()).pathname
+    if (pathname.startsWith('/speeches/create-and-complete-task/')) {
+      requestedSpeechUrls.add(pathname)
+    }
+  })
 
   await page.goto(tutorialUrl)
   await expect(page.locator('[data-tutorial-ready]')).toBeAttached()
@@ -48,5 +57,14 @@ test('Create and complete a task', async ({ page }) => {
       "[data-column-name='Done'] [data-card-title='Publish the launch checklist']",
     ),
   ).toBeVisible()
+  const speechTimings = await page.evaluate(
+    () => window.tutorializer?.timings?.speechTimings || [],
+  )
+  expect(speechTimings.map(({ text }) => text)).toEqual(
+    speechEntries.map(({ text }) => text),
+  )
+  expect([...requestedSpeechUrls].sort()).toEqual(
+    speechEntries.map(({ publicUrl }) => publicUrl).sort(),
+  )
   expect(pageErrors).toEqual([])
 })

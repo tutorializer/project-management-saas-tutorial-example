@@ -6,7 +6,7 @@
         "step": 1,
         "action": "click",
         "selector": "[data-testid='board-1']",
-        "description": "Open the First board",
+        "description": "Open the First board to begin.",
         "navigates": true,
         "zoom": "none"
       },
@@ -15,13 +15,13 @@
         "action": "type",
         "selector": "[data-testid='new-column-form'] input[name='columnName']",
         "value": "To do",
-        "description": "Name the first workflow column To do"
+        "description": "Name the first workflow column To do."
       },
       {
         "step": 3,
         "action": "click",
         "selector": "[data-testid='save-column']",
-        "description": "Save the To do column",
+        "description": "Save the To do column.",
         "pause": 1200
       },
       {
@@ -29,33 +29,33 @@
         "action": "type",
         "selector": "[data-testid='new-column-form'] input[name='columnName']",
         "value": "Done",
-        "description": "Name the second workflow column Done"
+        "description": "Now name the second workflow column Done."
       },
       {
         "step": 5,
         "action": "click",
         "selector": "[data-testid='save-column']",
-        "description": "Save the Done column",
+        "description": "Save the Done column.",
         "pause": 1200
       },
       {
         "step": 6,
         "action": "click",
         "selector": "[data-column-name='To do'] [data-testid='add-card']",
-        "description": "Add a task to the To do column"
+        "description": "Add a new task to the To do column."
       },
       {
         "step": 7,
         "action": "type",
         "selector": "[data-testid='new-card-form'] textarea",
         "value": "Publish the launch checklist",
-        "description": "Enter a clear title for the task"
+        "description": "Enter a clear title for the task: Publish the launch checklist."
       },
       {
         "step": 8,
         "action": "click",
         "selector": "[data-testid='save-card']",
-        "description": "Save the new task",
+        "description": "Save the new task.",
         "pause": 1200
       },
       {
@@ -63,7 +63,7 @@
         "action": "drag",
         "selector": "[data-column-name='To do'] [data-card-title='Publish the launch checklist'] [draggable='true']",
         "endSelector": "[data-column-name='Done'] [data-testid='column-drop-zone']",
-        "description": "Drag the finished task from To do to Done",
+        "description": "When the work is finished, drag the task from To do to Done.",
         "pause": 1200,
         "zoom": "none"
       },
@@ -71,7 +71,7 @@
         "step": 10,
         "action": "wait",
         "selector": "[data-column-name='Done'] [data-card-title='Publish the launch checklist']",
-        "description": "The launch checklist is complete in the Done column",
+        "description": "The launch checklist is now complete in the Done column.",
         "zoom": "none"
       }
     ]

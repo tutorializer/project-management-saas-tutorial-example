@@ -14,6 +14,8 @@ parallel Playwright implementation:
   composes `Tutorializer`, `Tutorial`, `Chapter`, `PreloadedPage`, and
   `TourWithSpeech` from
   [`@tutorializer/react`](https://github.com/tutorializer/react).
+- [`speeches.js`](speeches.js) maps every `tours.json` description to a
+  committed MP3 that `TourWithSpeech` plays while its matching action runs.
 - The resulting viewer is a normal application route at
   `/tutorials/create-and-complete-task`.
 
@@ -51,10 +53,12 @@ key, so the same command runs in CI and forks.
 npm run tutorials:record
 ```
 
-The recorder captures the real Tutorializer cursor and camera behavior and
-writes video plus WebVTT captions to the ignored `tutorials/videos/` directory.
-When `ffmpeg` is installed it emits the MP4 naming convention used by
-Tutorializer; otherwise it keeps Playwright's WebM recording. Set
+The recorder captures the real Tutorializer cursor and camera behavior, reads
+the speech start times reported by the runtime, and mixes those same per-step
+MP3s into the finished video. It writes the video plus matching WebVTT captions
+to the ignored `tutorials/videos/` directory. When `ffmpeg` is installed it
+emits the narrated MP4 naming convention used by Tutorializer; otherwise it
+keeps Playwright's silent WebM recording. Set
 `TUTORIAL_SPEED` to change runtime playback speed,
 `TUTORIAL_END_PAUSE_MS` to change the final hold, or `TUTORIAL_BASE_URL` to
 record an already-running deployment.

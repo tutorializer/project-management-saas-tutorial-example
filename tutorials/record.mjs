@@ -8,6 +8,8 @@ import { performance } from 'node:perf_hooks'
 // oxlint-disable-next-line import-js/no-extraneous-dependencies
 import { chromium } from '@playwright/test'
 
+import { speechEntries } from './speeches.js'
+
 const exampleDirectory = path.resolve(import.meta.dirname, '..')
 const videosDirectory = path.join(import.meta.dirname, 'videos')
 const port = 3101
@@ -21,6 +23,10 @@ const tutorial = {
   title: 'Create and complete a task',
   viewport: { width: 1280, height: 808 },
 }
+
+const speechEntryByText = new Map(
+  speechEntries.map(entry => [entry.text, entry]),
+)
 
 const waitForServer = async url => {
   const deadline = Date.now() + 120_000
@@ -99,7 +105,34 @@ const createCaptions = (cues, duration) => {
   return `WEBVTT\n\n${blocks.join('\n\n')}\n`
 }
 
-const convertToMp4 = async ({ inputPath, outputPath }) => {
+const convertToMp4 = async ({ inputPath, outputPath, cues, duration }) => {
+  const narration = cues.map(cue => {
+    const entry = speechEntryByText.get(cue.text)
+    if (!entry) {
+      throw new Error(`No narration asset is registered for "${cue.text}"`)
+    }
+
+    return {
+      ...cue,
+      path: path.join(exampleDirectory, entry.assetPath),
+    }
+  })
+  const audioInputArguments = narration.flatMap(cue => ['-i', cue.path])
+  const delayedAudio = narration.map((cue, index) => {
+    const inputIndex = index + 2
+    const delay = Math.max(0, Math.round(cue.start))
+    return `[${inputIndex}:a]adelay=${delay}:all=1[speech${index}]`
+  })
+  const audioInputs = [
+    '[1:a]',
+    ...narration.map((_, index) => `[speech${index}]`),
+  ].join('')
+  const filter = [
+    ...delayedAudio,
+    `${audioInputs}amix=inputs=${narration.length + 1}:duration=longest:dropout_transition=0:normalize=0[audio]`,
+  ].join(';')
+  const durationSeconds = (duration / 1000).toFixed(3)
+
   const result = spawnSync(
     'ffmpeg',
     [
@@ -109,11 +142,29 @@ const convertToMp4 = async ({ inputPath, outputPath }) => {
       '-y',
       '-i',
       inputPath,
-      '-an',
+      '-f',
+      'lavfi',
+      '-t',
+      durationSeconds,
+      '-i',
+      'anullsrc=channel_layout=stereo:sample_rate=48000',
+      ...audioInputArguments,
+      '-filter_complex',
+      filter,
+      '-map',
+      '0:v:0',
+      '-map',
+      '[audio]',
       '-c:v',
       'libx264',
       '-pix_fmt',
       'yuv420p',
+      '-c:a',
+      'aac',
+      '-b:a',
+      '128k',
+      '-t',
+      durationSeconds,
       '-movflags',
       '+faststart',
       outputPath,
@@ -130,34 +181,30 @@ const convertToMp4 = async ({ inputPath, outputPath }) => {
   return outputPath
 }
 
-const waitForTutorial = async ({ page, startedAt }) => {
-  const cues = []
-  const seenSteps = new Set()
+const waitForTutorial = async ({
+  page,
+  recordingLeadIn,
+  recordingStartTime,
+}) => {
   const deadline = Date.now() + 180_000
 
   while (Date.now() < deadline) {
     const state = await page.evaluate(() => ({
       complete: Boolean(window.tutorializer?.timings?.tutorialComplete),
       error: window.tutorializer?.tourError || null,
-      step: window.tutorializer?.tourStep || null,
+      speechTimings: window.tutorializer?.timings?.speechTimings || [],
     }))
 
     if (state.error) {
       throw new Error(state.error.detail || JSON.stringify(state.error))
     }
 
-    if (state.step) {
-      const key = `${state.step.tour}:${state.step.step}:${state.step.startedAt}`
-      if (!seenSteps.has(key)) {
-        seenSteps.add(key)
-        cues.push({
-          start: performance.now() - startedAt,
-          text: state.step.description,
-        })
-      }
+    if (state.complete) {
+      return state.speechTimings.map(({ text, startTime }) => ({
+        start: recordingLeadIn + (startTime - recordingStartTime),
+        text,
+      }))
     }
-
-    if (state.complete) return cues
     await page.waitForTimeout(50)
   }
 
@@ -187,11 +234,22 @@ const recordTutorial = async browser => {
   const product = page.frameLocator('iframe[title="Trellaux"]')
   await product.locator("[data-testid='board-1']").waitFor()
 
-  await page.locator('body').evaluate(body => {
+  const recordingStartTime = await page.locator('body').evaluate(body => {
     body.setAttribute('data-recording-started', '')
+    return performance.now()
   })
+  const recordingLeadIn = performance.now() - startedAt
 
-  const cues = await waitForTutorial({ page, startedAt })
+  const cues = await waitForTutorial({
+    page,
+    recordingLeadIn,
+    recordingStartTime,
+  })
+  if (cues.length !== speechEntries.length) {
+    throw new Error(
+      `Expected ${speechEntries.length} narrated steps, received ${cues.length}`,
+    )
+  }
   await product
     .locator(
       "[data-column-name='Done'] [data-card-title='Publish the launch checklist']",
@@ -221,6 +279,8 @@ const recordTutorial = async browser => {
   const mp4Path = await convertToMp4({
     inputPath: outputPath,
     outputPath: path.join(videosDirectory, `${basename}.mp4`),
+    cues,
+    duration,
   })
   const finalPath = mp4Path || outputPath
   console.log(`Recorded ${path.relative(exampleDirectory, finalPath)}`)
@@ -235,7 +295,9 @@ let browser
 try {
   await mkdir(videosDirectory, { recursive: true })
   await waitForServer(baseURL)
-  browser = await chromium.launch()
+  browser = await chromium.launch({
+    args: ['--autoplay-policy=no-user-gesture-required'],
+  })
   await recordTutorial(browser)
 } finally {
   await browser?.close()

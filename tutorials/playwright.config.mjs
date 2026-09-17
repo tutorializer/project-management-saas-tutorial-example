@@ -17,6 +17,9 @@ export default defineConfig({
   outputDir: path.join(import.meta.dirname, 'test-results'),
   use: {
     baseURL: 'http://127.0.0.1:3100',
+    launchOptions: {
+      args: ['--autoplay-policy=no-user-gesture-required'],
+    },
     trace: 'retain-on-failure',
     viewport: { width: 1280, height: 808 },
   },

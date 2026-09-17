@@ -7,6 +7,8 @@ import TourWithSpeech from '@tutorializer/react/TourWithSpeech.jsx'
 import Tutorial from '@tutorializer/react/Tutorial.jsx'
 import Tutorializer from '@tutorializer/react/Tutorializer.jsx'
 
+import speeches from './speeches.js'
+
 const readPlaybackSpeed = () => {
   const speed = Number(new URLSearchParams(window.location.search).get('speed'))
   return Number.isFinite(speed) && speed > 0 ? speed : 1
@@ -21,7 +23,6 @@ const CreateAndCompleteTaskChapter = () => {
       <TourWithSpeech
         preloadedAppRef={preloadedAppRef}
         name="create-and-complete-task"
-        speeches={false}
         speed={readPlaybackSpeed()}
         entrance={false}
       />
@@ -31,7 +32,7 @@ const CreateAndCompleteTaskChapter = () => {
 
 export default function CreateAndCompleteTaskTutorial() {
   return (
-    <Tutorializer>
+    <Tutorializer speeches={speeches}>
       <Tutorial language="en">
         <CreateAndCompleteTaskChapter />
       </Tutorial>

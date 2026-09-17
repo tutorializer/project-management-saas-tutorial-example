@@ -38,7 +38,9 @@ route is composed in [`tutorials/`](tutorials/README.md) with
 dependencies are pinned to tested commits in `package.json`.
 
 The included deterministic walkthrough creates a two-column workflow, adds a
-task, and drags the task to **Done**. Run it in a browser at
+task, and drags the task to **Done**. Each product action is narrated through
+`TourWithSpeech`; the committed speech assets make playback and recording
+credential-free. Run it in a browser at
 <http://localhost:3000/tutorials/create-and-complete-task?controls>. The
 verified computer/en render is
 [published on Tutorializer](https://videos.tutorializer.com/videos/bbc9cb5930cca72ee27329ff/create-and-complete-task-tutorial-computer-en.mp4).
@@ -46,7 +48,7 @@ verified computer/en render is
 ```bash
 npx playwright install chromium
 npm run tutorials:test    # execute the real Tutorializer route and assert its result
-npm run tutorials:record  # record that same route and generate WebVTT captions
+npm run tutorials:record  # record that route with narration and WebVTT captions
 ```
 
 The test and recorder need no credentials. `tutorializer.json` links the repo
