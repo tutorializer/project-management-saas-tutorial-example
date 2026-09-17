@@ -10,9 +10,11 @@ import toast from 'react-hot-toast'
 import { DefaultCatchBoundary } from './components/DefaultCatchBoundary'
 import { NotFound } from './components/NotFound'
 import { routeTree } from './routeTree.gen'
+import initializeTutorializer from './tutorializer.js'
 
 export function getRouter() {
   if (typeof document !== 'undefined') {
+    initializeTutorializer()
     notifyManager.setScheduler(window.requestAnimationFrame)
   }
 

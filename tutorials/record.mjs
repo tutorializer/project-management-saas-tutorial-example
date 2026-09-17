@@ -3,19 +3,24 @@
 import { spawn, spawnSync } from 'node:child_process'
 import { mkdir, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { performance } from 'node:perf_hooks'
 
 // oxlint-disable-next-line import-js/no-extraneous-dependencies
 import { chromium } from '@playwright/test'
-
-import loadTutorials from './loadTutorials.mjs'
-import runTutorial from './runTutorial.mjs'
 
 const exampleDirectory = path.resolve(import.meta.dirname, '..')
 const videosDirectory = path.join(import.meta.dirname, 'videos')
 const port = 3101
 const managedBaseUrl = `http://127.0.0.1:${port}`
 const baseURL = process.env.TUTORIAL_BASE_URL || managedBaseUrl
-const paceMs = Number(process.env.TUTORIAL_STEP_PAUSE_MS || 900)
+const speed = Number(process.env.TUTORIAL_SPEED || 1)
+const endPauseMs = Number(process.env.TUTORIAL_END_PAUSE_MS || 900)
+
+const tutorial = {
+  name: 'create-and-complete-task',
+  title: 'Create and complete a task',
+  viewport: { width: 1280, height: 808 },
+}
 
 const waitForServer = async url => {
   const deadline = Date.now() + 120_000
@@ -73,59 +78,6 @@ const stopServer = server => {
   }
 }
 
-const showStep = async ({ page, step, tutorial }) => {
-  await page.evaluate(
-    ({ description, number, total }) => {
-      document
-        .querySelectorAll('[data-tutorializer-focus]')
-        .forEach(element => {
-          element.removeAttribute('data-tutorializer-focus')
-          element.style.outline = ''
-          element.style.outlineOffset = ''
-        })
-
-      let overlay = document.querySelector('[data-tutorializer-caption]')
-      if (!overlay) {
-        overlay = document.createElement('div')
-        overlay.setAttribute('data-tutorializer-caption', '')
-        Object.assign(overlay.style, {
-          position: 'fixed',
-          zIndex: '2147483647',
-          left: '50%',
-          bottom: '28px',
-          transform: 'translateX(-50%)',
-          maxWidth: 'min(760px, calc(100vw - 48px))',
-          padding: '14px 20px',
-          borderRadius: '14px',
-          background: 'rgba(15, 23, 42, 0.94)',
-          boxShadow: '0 12px 36px rgba(15, 23, 42, 0.32)',
-          color: 'white',
-          font: '600 18px/1.4 system-ui, sans-serif',
-          textAlign: 'center',
-          pointerEvents: 'none',
-        })
-        document.body.append(overlay)
-      }
-
-      overlay.textContent = `${number}/${total} · ${description}`
-    },
-    {
-      description: step.description,
-      number: step.step,
-      total: tutorial.steps.length,
-    },
-  )
-
-  await page
-    .locator(step.selector)
-    .first()
-    .evaluate(element => {
-      element.setAttribute('data-tutorializer-focus', '')
-      element.style.outline = '4px solid #f97316'
-      element.style.outlineOffset = '4px'
-    })
-}
-
 const formatVttTime = milliseconds => {
   const value = Math.max(0, Math.round(milliseconds))
   const hours = Math.floor(value / 3_600_000)
@@ -178,7 +130,41 @@ const convertToMp4 = async ({ inputPath, outputPath }) => {
   return outputPath
 }
 
-const recordTutorial = async ({ browser, tutorial }) => {
+const waitForTutorial = async ({ page, startedAt }) => {
+  const cues = []
+  const seenSteps = new Set()
+  const deadline = Date.now() + 180_000
+
+  while (Date.now() < deadline) {
+    const state = await page.evaluate(() => ({
+      complete: Boolean(window.tutorializer?.timings?.tutorialComplete),
+      error: window.tutorializer?.tourError || null,
+      step: window.tutorializer?.tourStep || null,
+    }))
+
+    if (state.error) {
+      throw new Error(state.error.detail || JSON.stringify(state.error))
+    }
+
+    if (state.step) {
+      const key = `${state.step.tour}:${state.step.step}:${state.step.startedAt}`
+      if (!seenSteps.has(key)) {
+        seenSteps.add(key)
+        cues.push({
+          start: performance.now() - startedAt,
+          text: state.step.description,
+        })
+      }
+    }
+
+    if (state.complete) return cues
+    await page.waitForTimeout(50)
+  }
+
+  throw new Error(`Timed out recording "${tutorial.title}"`)
+}
+
+const recordTutorial = async browser => {
   const context = await browser.newContext({
     baseURL,
     viewport: tutorial.viewport,
@@ -188,26 +174,36 @@ const recordTutorial = async ({ browser, tutorial }) => {
     },
   })
   const page = await context.newPage()
+  const video = page.video()
   const startedAt = performance.now()
-  const cues = []
+  const pageErrors = []
+  page.on('pageerror', error => pageErrors.push(error.message))
 
-  await runTutorial({
-    page,
-    tutorial,
-    pauseMs: paceMs,
-    onStep: async event => {
-      cues.push({
-        start: performance.now() - startedAt,
-        text: event.step.description,
-      })
-      await showStep(event)
-      await page.waitForTimeout(paceMs)
-    },
+  await page.goto(
+    `/tutorials/${tutorial.name}?waitForStart&speed=${encodeURIComponent(speed)}`,
+  )
+  await page.locator('[data-tutorial-ready]').waitFor()
+
+  const product = page.frameLocator('iframe[title="Trellaux"]')
+  await product.locator("[data-testid='board-1']").waitFor()
+
+  await page.locator('body').evaluate(body => {
+    body.setAttribute('data-recording-started', '')
   })
-  await page.waitForTimeout(paceMs)
+
+  const cues = await waitForTutorial({ page, startedAt })
+  await product
+    .locator(
+      "[data-column-name='Done'] [data-card-title='Publish the launch checklist']",
+    )
+    .waitFor()
+  await page.waitForTimeout(endPauseMs)
+
+  if (pageErrors.length) {
+    throw new Error(`Browser errors:\n${pageErrors.join('\n')}`)
+  }
 
   const duration = performance.now() - startedAt
-  const video = page.video()
   await context.close()
   const temporaryPath = await video.path()
 
@@ -240,10 +236,7 @@ try {
   await mkdir(videosDirectory, { recursive: true })
   await waitForServer(baseURL)
   browser = await chromium.launch()
-
-  for (const tutorial of await loadTutorials()) {
-    await recordTutorial({ browser, tutorial })
-  }
+  await recordTutorial(browser)
 } finally {
   await browser?.close()
   stopServer(server)

@@ -3,24 +3,48 @@
 // oxlint-disable-next-line import-js/no-extraneous-dependencies
 import { expect, test } from '@playwright/test'
 
-import loadTutorials from './loadTutorials.mjs'
-import runTutorial from './runTutorial.mjs'
+const tutorialUrl = '/tutorials/create-and-complete-task?waitForStart&speed=20'
 
-const tutorials = await loadTutorials()
+test.setTimeout(120_000)
 
-for (const tutorial of tutorials) {
-  test(tutorial.title, async ({ page }) => {
-    const pageErrors = []
-    page.on('pageerror', error => pageErrors.push(error.message))
+const readTutorialOutcome = page =>
+  page.evaluate(() => {
+    if (window.tutorializer?.tourError) {
+      return { status: 'error', error: window.tutorializer.tourError }
+    }
 
-    await page.setViewportSize(tutorial.viewport)
-    await runTutorial({ page, tutorial })
+    if (window.tutorializer?.timings?.tutorialComplete) {
+      return { status: 'complete' }
+    }
 
-    await expect(
-      page
-        .locator("[data-column-name='Done']")
-        .getByText('Publish the launch checklist'),
-    ).toBeVisible()
-    expect(pageErrors).toEqual([])
+    return null
   })
-}
+
+test('Create and complete a task', async ({ page }) => {
+  const pageErrors = []
+  page.on('pageerror', error => pageErrors.push(error.message))
+
+  await page.goto(tutorialUrl)
+  await expect(page.locator('[data-tutorial-ready]')).toBeAttached()
+
+  const product = page.frameLocator('iframe[title="Trellaux"]')
+  await expect(product.locator("[data-testid='board-1']")).toBeVisible()
+
+  await page.locator('body').evaluate(body => {
+    body.setAttribute('data-recording-started', '')
+  })
+
+  await expect
+    .poll(() => readTutorialOutcome(page), {
+      message: 'the Tutorializer runtime should complete without a tour error',
+      timeout: 120_000,
+    })
+    .toEqual({ status: 'complete' })
+
+  await expect(
+    product.locator(
+      "[data-column-name='Done'] [data-card-title='Publish the launch checklist']",
+    ),
+  ).toBeVisible()
+  expect(pageErrors).toEqual([])
+})

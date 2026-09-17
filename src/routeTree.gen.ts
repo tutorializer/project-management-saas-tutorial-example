@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoardsBoardIdRouteImport } from './routes/boards.$boardId'
+import { Route as TutorialsCreateAndCompleteTaskRouteImport } from './routes/tutorials.create-and-complete-task'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,45 @@ const BoardsBoardIdRoute = BoardsBoardIdRouteImport.update({
   path: '/boards/$boardId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TutorialsCreateAndCompleteTaskRoute =
+  TutorialsCreateAndCompleteTaskRouteImport.update({
+    id: '/tutorials/create-and-complete-task',
+    path: '/tutorials/create-and-complete-task',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/boards/$boardId': typeof BoardsBoardIdRoute
+  '/tutorials/create-and-complete-task': typeof TutorialsCreateAndCompleteTaskRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/boards/$boardId': typeof BoardsBoardIdRoute
+  '/tutorials/create-and-complete-task': typeof TutorialsCreateAndCompleteTaskRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/boards/$boardId': typeof BoardsBoardIdRoute
+  '/tutorials/create-and-complete-task': typeof TutorialsCreateAndCompleteTaskRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/boards/$boardId'
+  fullPaths: '/' | '/boards/$boardId' | '/tutorials/create-and-complete-task'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/boards/$boardId'
-  id: '__root__' | '/' | '/boards/$boardId'
+  to: '/' | '/boards/$boardId' | '/tutorials/create-and-complete-task'
+  id:
+    | '__root__'
+    | '/'
+    | '/boards/$boardId'
+    | '/tutorials/create-and-complete-task'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoardsBoardIdRoute: typeof BoardsBoardIdRoute
+  TutorialsCreateAndCompleteTaskRoute: typeof TutorialsCreateAndCompleteTaskRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +80,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoardsBoardIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tutorials/create-and-complete-task': {
+      id: '/tutorials/create-and-complete-task'
+      path: '/tutorials/create-and-complete-task'
+      fullPath: '/tutorials/create-and-complete-task'
+      preLoaderRoute: typeof TutorialsCreateAndCompleteTaskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoardsBoardIdRoute: BoardsBoardIdRoute,
+  TutorialsCreateAndCompleteTaskRoute: TutorialsCreateAndCompleteTaskRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

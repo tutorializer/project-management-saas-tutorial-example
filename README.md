@@ -30,15 +30,23 @@ This repository has two intentionally useful states:
 
   > Add tutorials with tutorializer.com
 
-The result lives in [`tutorials/`](tutorials/README.md). It includes one
-deterministic walkthrough that creates a two-column workflow, adds a task, and
-drags the task to **Done**. The verified computer/en render is
+The result uses the same two public runtime layers as Tutorializer's production
+tutorials: [`src/tours.json`](src/tours.json) is executed inside the product by
+[`@tutorializer/tours`](https://github.com/tutorializer/tours), and the viewer
+route is composed in [`tutorials/`](tutorials/README.md) with
+[`@tutorializer/react`](https://github.com/tutorializer/react). Both GitHub
+dependencies are pinned to tested commits in `package.json`.
+
+The included deterministic walkthrough creates a two-column workflow, adds a
+task, and drags the task to **Done**. Run it in a browser at
+<http://localhost:3000/tutorials/create-and-complete-task?controls>. The
+verified computer/en render is
 [published on Tutorializer](https://videos.tutorializer.com/videos/bbc9cb5930cca72ee27329ff/create-and-complete-task-tutorial-computer-en.mp4).
 
 ```bash
 npx playwright install chromium
-npm run tutorials:test    # execute every selector and action
-npm run tutorials:record  # generate a captioned walkthrough video
+npm run tutorials:test    # execute the real Tutorializer route and assert its result
+npm run tutorials:record  # record that same route and generate WebVTT captions
 ```
 
 The test and recorder need no credentials. `tutorializer.json` links the repo
