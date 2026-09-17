@@ -25,7 +25,7 @@ const waitForServer = async url => {
       const response = await fetch(url)
       if (response.ok) return
     } catch {
-      // The development server has not bound its port yet.
+      // The app server has not bound its port yet.
     }
 
     await new Promise(resolve => {
@@ -40,9 +40,20 @@ const startServer = () => {
   if (process.env.TUTORIAL_BASE_URL) return null
 
   const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm'
+  const build = spawnSync(npmCommand, ['run', 'build'], {
+    cwd: exampleDirectory,
+    env: { ...process.env, NO_COLOR: '1' },
+    stdio: 'inherit',
+  })
+
+  if (build.error) throw build.error
+  if (build.status !== 0) {
+    throw new Error(`Tutorial app build exited with status ${build.status}`)
+  }
+
   return spawn(
     npmCommand,
-    ['run', 'dev', '--', '--host', '127.0.0.1', '--port', String(port)],
+    ['run', 'start', '--', '--host', '127.0.0.1', '--port', String(port)],
     {
       cwd: exampleDirectory,
       detached: process.platform !== 'win32',

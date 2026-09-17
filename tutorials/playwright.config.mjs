@@ -21,7 +21,7 @@ export default defineConfig({
     viewport: { width: 1280, height: 808 },
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 3100',
+    command: 'npm run build && npm run start -- --host 127.0.0.1 --port 3100',
     cwd: exampleDirectory,
     reuseExistingServer: false,
     timeout: 120_000,
