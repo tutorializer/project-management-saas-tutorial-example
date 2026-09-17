@@ -29,7 +29,7 @@
     "@tanstack/react-router-ssr-query": "1.167.3",
     "@tanstack/react-start": "1.168.56",
     "@tutorializer/react": "https://github.com/tutorializer/react/archive/d7b1b2194d2baa22f457da71063697a6304348ce.tar.gz",
-    "@tutorializer/tours": "https://github.com/tutorializer/tours/archive/d2f7fa3a4dc49bb73a3d744643a409aa7c3c22f9.tar.gz",
+    "@tutorializer/tours": "https://github.com/tutorializer/tours/archive/1c20e30e3e012d23c7ebcc2d9e16e3da118e907d.tar.gz",
     "ky": "1.14.3",
     "msw": "2.15.0",
     "react": "19.3.0",
