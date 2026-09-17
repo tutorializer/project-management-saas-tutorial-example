@@ -19,6 +19,7 @@ function Home() {
         {boardsQuery.data.map(board => (
           <li key={board.id} className="ml-4">
             <Link
+              data-testid={`board-${board.id}`}
               to="/boards/$boardId"
               params={{
                 boardId: board.id,

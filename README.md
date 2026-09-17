@@ -19,6 +19,32 @@ Open <http://localhost:3000>, select **First board**, create a column, and add a
 card. All data is held in the running server's memory and resets when the
 server restarts.
 
+## Tutorializer example
+
+This repository has two intentionally useful states:
+
+- [`without-tutorializer`](https://github.com/tutorializer/project-management-saas-tutorial-example/tree/without-tutorializer)
+  is the untouched, runnable product used as the starting point for agent evals
+  and videos.
+- `main` is the result of giving that base repository one prompt:
+
+  > Add tutorials with tutorializer.com
+
+The result lives in [`tutorials/`](tutorials/README.md). It includes one
+deterministic walkthrough that creates a two-column workflow, adds a task, and
+drags the task to **Done**. The verified computer/en render is
+[published on Tutorializer](https://videos.tutorializer.com/videos/bbc9cb5930cca72ee27329ff/create-and-complete-task-tutorial-computer-en.mp4).
+
+```bash
+npx playwright install chromium
+npm run tutorials:test    # execute every selector and action
+npm run tutorials:record  # generate a captioned walkthrough video
+```
+
+The test and recorder need no credentials. `tutorializer.json` links the repo
+to its public Tutorializer project; sign in with the official CLI only when you
+want to inspect its cloud tutorial and video records.
+
 ## Why this base app
 
 This repository is organized around a kind of product—project-management
@@ -39,6 +65,8 @@ be online.
 npm run dev       # development server on http://localhost:3000
 npm run build     # production build plus TypeScript checking
 npm run preview   # preview the production build
+npm run tutorials:test
+npm run tutorials:record
 ```
 
 ## Upstream

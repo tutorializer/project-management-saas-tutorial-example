@@ -32,6 +32,7 @@ export const Card = forwardRef<HTMLLIElement, CardProps>(
     return (
       <li
         ref={ref}
+        data-card-title={title}
         onDragOver={event => {
           if (event.dataTransfer.types.includes(CONTENT_TYPES.card)) {
             event.preventDefault()

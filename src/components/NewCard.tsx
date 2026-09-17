@@ -25,6 +25,7 @@ export function NewCard({
 
   return (
     <form
+      data-testid="new-card-form"
       method="post"
       className="px-2 py-1 border-t-2 border-b-2 border-transparent"
       onSubmit={event => {
@@ -82,7 +83,9 @@ export function NewCard({
         }}
       />
       <div className="flex justify-between">
-        <SaveButton ref={buttonRef}>Save Card</SaveButton>
+        <SaveButton ref={buttonRef} data-testid="save-card">
+          Save Card
+        </SaveButton>
         <CancelButton onClick={onComplete}>Cancel</CancelButton>
       </div>
     </form>

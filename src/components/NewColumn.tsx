@@ -23,6 +23,7 @@ export function NewColumn({
 
   return editing ? (
     <form
+      data-testid="new-column-form"
       className="ml-2 p-2 shrink-0 flex flex-col gap-5 overflow-hidden max-h-full w-80 border rounded-xl shadow-sm bg-slate-100"
       onSubmit={event => {
         event.preventDefault()
@@ -55,12 +56,13 @@ export function NewColumn({
         className="border border-slate-400 w-full rounded-lg py-1 px-2 font-medium text-black"
       />
       <div className="flex justify-between">
-        <SaveButton>Save Column</SaveButton>
+        <SaveButton data-testid="save-column">Save Column</SaveButton>
         <CancelButton onClick={() => setEditing(false)}>Cancel</CancelButton>
       </div>
     </form>
   ) : (
     <button
+      data-testid="add-column"
       onClick={() => {
         setEditing(true)
       }}

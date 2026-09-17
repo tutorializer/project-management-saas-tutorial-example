@@ -1,0 +1,84 @@
+{
+  "$schema": "./tutorial.schema.json",
+  "name": "create-and-complete-task",
+  "title": "Create and complete a task",
+  "startPath": "/",
+  "viewport": {
+    "width": 1280,
+    "height": 808
+  },
+  "steps": [
+    {
+      "step": 1,
+      "action": "click",
+      "selector": "[data-testid='board-1']",
+      "description": "Open the First board"
+    },
+    {
+      "step": 2,
+      "action": "type",
+      "selector": "[data-testid='new-column-form'] input[name='columnName']",
+      "value": "To do",
+      "description": "Name the first workflow column To do"
+    },
+    {
+      "step": 3,
+      "action": "click",
+      "selector": "[data-testid='save-column']",
+      "description": "Save the To do column",
+      "pause": 1200,
+      "waitFor": "[data-column-name='To do']"
+    },
+    {
+      "step": 4,
+      "action": "type",
+      "selector": "[data-testid='new-column-form'] input[name='columnName']",
+      "value": "Done",
+      "description": "Name the second workflow column Done"
+    },
+    {
+      "step": 5,
+      "action": "click",
+      "selector": "[data-testid='save-column']",
+      "description": "Save the Done column",
+      "pause": 1200,
+      "waitFor": "[data-column-name='Done']"
+    },
+    {
+      "step": 6,
+      "action": "click",
+      "selector": "[data-column-name='To do'] [data-testid='add-card']",
+      "description": "Add a task to the To do column"
+    },
+    {
+      "step": 7,
+      "action": "type",
+      "selector": "[data-testid='new-card-form'] textarea",
+      "value": "Publish the launch checklist",
+      "description": "Enter a clear title for the task"
+    },
+    {
+      "step": 8,
+      "action": "click",
+      "selector": "[data-testid='save-card']",
+      "description": "Save the new task",
+      "pause": 1200,
+      "waitFor": "[data-column-name='To do'] [data-card-title='Publish the launch checklist']"
+    },
+    {
+      "step": 9,
+      "action": "drag",
+      "selector": "[data-column-name='To do'] [data-card-title='Publish the launch checklist'] [draggable='true']",
+      "endSelector": "[data-column-name='Done'] [data-testid='column-drop-zone']",
+      "description": "Drag the finished task from To do to Done",
+      "pause": 1200,
+      "waitFor": "[data-column-name='Done'] [data-card-title='Publish the launch checklist']"
+    },
+    {
+      "step": 10,
+      "action": "assert",
+      "selector": "[data-column-name='Done'] [data-card-title='Publish the launch checklist']",
+      "description": "The launch checklist is complete in the Done column"
+    }
+  ]
+}

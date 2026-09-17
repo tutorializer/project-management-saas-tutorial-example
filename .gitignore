@@ -7,6 +7,9 @@ yarn.lock
 .vercel
 .output
 dist
+/playwright-report/
+/tutorials/test-results/
+/tutorials/videos/
 /build/
 /api/
 /server/build

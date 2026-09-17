@@ -15,6 +15,9 @@
     "dev": "vite dev",
     "preview": "vite preview",
     "start": "vite preview",
+    "tutorializer:project": "npx --yes tutorializer@1.2.1 projects read bbc9cb5930cca72ee27329ff",
+    "tutorials:record": "node tutorials/record.mjs",
+    "tutorials:test": "playwright test --config tutorials/playwright.config.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -34,6 +37,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@playwright/test": "1.63.0",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "24.13.5",
     "@types/react": "19.3.0",

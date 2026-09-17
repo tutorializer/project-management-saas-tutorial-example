@@ -100,6 +100,7 @@ export const Column = forwardRef<HTMLDivElement, ColumnProps>(
     return (
       <div
         ref={ref}
+        data-column-name={name}
         onDragOver={(event: React.DragEvent) => {
           if (event.dataTransfer.types.includes(CONTENT_TYPES.column)) {
             event.preventDefault()
@@ -147,6 +148,7 @@ export const Column = forwardRef<HTMLDivElement, ColumnProps>(
         )}
       >
         <div
+          data-testid="column-drop-zone"
           draggable={!editState[0]}
           onDragStart={(event: React.DragEvent) => {
             event.dataTransfer.effectAllowed = 'move'
@@ -218,6 +220,7 @@ export const Column = forwardRef<HTMLDivElement, ColumnProps>(
           ) : (
             <div className="p-2" {...(items.length ? cardDndProps : {})}>
               <button
+                data-testid="add-card"
                 type="button"
                 onClick={() => {
                   flushSync(() => {

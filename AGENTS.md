@@ -17,10 +17,24 @@ npm ci
 npm run dev
 npm run build
 npm run preview
+npm run tutorials:test
+npm run tutorials:record
 ```
 
 The development server uses <http://localhost:3000>. The production build also
-runs TypeScript's no-emit check.
+runs TypeScript's no-emit check. Install Chromium once with
+`npx playwright install chromium` before tutorial validation or recording.
+
+## Tutorials
+
+Tutorial definitions live in `tutorials/*.tutorial.json`. Keep them focused on
+user outcomes, use existing accessible attributes or stable `data-testid`
+selectors, and describe each action as narration. Every definition must run
+through `npm run tutorials:test` without credentials. Generated videos,
+captions, traces, and test results stay uncommitted.
+
+`tutorializer.json` contains only the public Tutorializer project id. Never add
+an API key or browser session to this repository.
 
 ## Provenance
 
