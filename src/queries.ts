@@ -43,7 +43,7 @@ export function useCreateColumnMutation() {
                   {
                     ...variables.data,
                     order: board.columns.length + 1,
-                    id: Math.random() + '',
+                    id: crypto.randomUUID(),
                   },
                 ],
               }
