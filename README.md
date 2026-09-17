@@ -41,9 +41,13 @@ The included deterministic walkthrough creates a two-column workflow, adds a
 task, and drags the task to **Done**. Each product action is narrated through
 `TourWithSpeech`; the committed speech assets make playback and recording
 credential-free. Run it in a browser at
-<http://localhost:3000/tutorials/create-and-complete-task?controls>. The
-verified computer/en render is
-[published on Tutorializer](https://videos.tutorializer.com/videos/bbc9cb5930cca72ee27329ff/create-and-complete-task-tutorial-computer-en.mp4).
+<http://localhost:3000/tutorials/create-and-complete-task?controls>.
+
+### Watch the narrated tutorial
+
+[![Watch the narrated Create and complete a task tutorial](public/create-and-complete-task-tutorial-preview.jpg)](https://videos.tutorializer.com/videos/bbc9cb5930cca72ee27329ff/create-and-complete-task-tutorial-computer-en.mp4)
+
+Click the preview to watch the verified computer/en render on Tutorializer.
 
 ```bash
 npx playwright install chromium
