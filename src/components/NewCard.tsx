@@ -19,8 +19,7 @@ export function NewCard({
   nextOrder: number
   onComplete: () => void
 }) {
-  const textAreaRef = useRef<HTMLTextAreaElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const titleInputRef = useRef<HTMLInputElement>(null)
   const { mutate } = useCreateItemMutation()
 
   return (
@@ -35,8 +34,8 @@ export function NewCard({
         const id = crypto.randomUUID()
         formData.set(ItemMutationFields.id.name, id)
 
-        invariant(textAreaRef.current)
-        textAreaRef.current.value = ''
+        invariant(titleInputRef.current)
+        titleInputRef.current.value = ''
 
         mutate({
           data: itemSchema.parse(Object.fromEntries(formData.entries())),
@@ -60,32 +59,20 @@ export function NewCard({
         value={nextOrder}
       />
 
-      <textarea
+      {/* Native single-line form submission lets the browser consume IME Enter. */}
+      <input
         autoFocus
         required
-        ref={textAreaRef}
+        ref={titleInputRef}
         name={ItemMutationFields.title.name}
         placeholder="Enter a title for this card"
         className="outline-hidden shadow-sm text-sm rounded-lg w-full py-1 px-2 resize-none placeholder:text-sm placeholder:text-slate-500 h-14"
         onKeyDown={event => {
-          if (event.key === 'Enter') {
-            event.preventDefault()
-            invariant(buttonRef.current, 'expected button ref')
-            buttonRef.current.click()
-          }
-          if (event.key === 'Escape') {
-            onComplete()
-          }
-        }}
-        onChange={event => {
-          const el = event.currentTarget
-          el.style.height = el.scrollHeight + 'px'
+          if (event.key === 'Escape') onComplete()
         }}
       />
       <div className="flex justify-between">
-        <SaveButton ref={buttonRef} data-testid="save-card">
-          Save Card
-        </SaveButton>
+        <SaveButton data-testid="save-card">Save Card</SaveButton>
         <CancelButton onClick={onComplete}>Cancel</CancelButton>
       </div>
     </form>

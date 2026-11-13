@@ -2,6 +2,11 @@
 
 const speechDirectory = 'speeches/create-and-complete-task'
 
+export const speechGeneration = {
+  provider: 'elevenlabs',
+  voice: 'ktkP7Nsj67dw2zcplQYt',
+}
+
 export const speechEntries = [
   {
     step: 1,
@@ -53,11 +58,16 @@ export const speechEntries = [
     text: 'The launch checklist is now complete in the Done column.',
     fileName: '10-task-complete.mp3',
   },
-].map(entry => ({
-  ...entry,
-  assetPath: `public/${speechDirectory}/${entry.fileName}`,
-  publicUrl: `/${speechDirectory}/${entry.fileName}`,
-}))
+].map(entry => {
+  const alignmentFileName = entry.fileName.replace(/\.mp3$/u, '.json')
+
+  return {
+    ...entry,
+    alignmentAssetPath: `public/${speechDirectory}/${alignmentFileName}`,
+    assetPath: `public/${speechDirectory}/${entry.fileName}`,
+    publicUrl: `/${speechDirectory}/${entry.fileName}`,
+  }
+})
 
 const speeches = Object.fromEntries(
   speechEntries.map(({ text, publicUrl }) => [

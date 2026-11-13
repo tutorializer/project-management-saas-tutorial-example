@@ -15,7 +15,8 @@ parallel Playwright implementation:
   `TourWithSpeech` from
   [`@tutorializer/react`](https://github.com/tutorializer/react).
 - [`speeches.js`](speeches.js) maps every `tours.json` description to a
-  committed MP3 that `TourWithSpeech` plays while its matching action runs.
+  committed ElevenLabs MP3 and word-level alignment JSON. `TourWithSpeech`
+  plays the MP3 while its matching action runs.
 - The resulting viewer is a normal application route at
   `/tutorials/create-and-complete-task`.
 
@@ -78,6 +79,17 @@ npx tutorializer videos list
 
 Credentials remain outside the repository. Local validation and recording do
 not require them.
+
+Narration is created through Tutorializer, which defaults to ElevenLabs and
+the project's configured voice when neither is specified:
+
+```bash
+npx tutorializer speeches create "Welcome to the tutorial" \
+  --output public/speeches/welcome.mp3
+```
+
+The command downloads both `welcome.mp3` and `welcome.json`. Commit both so
+other contributors and CI never need synthesis credentials.
 
 The checked workflow is published as the
 [computer/en Tutorializer render](https://videos.tutorializer.com/videos/bbc9cb5930cca72ee27329ff/create-and-complete-task-tutorial-computer-en.mp4),

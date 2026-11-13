@@ -1,4 +1,6 @@
 /* Copyright 2026 Tutorializer LLC */
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
 
 // oxlint-disable-next-line import-js/no-extraneous-dependencies
 import { expect, test } from '@playwright/test'
@@ -8,6 +10,25 @@ import { speechEntries } from './speeches.js'
 const tutorialUrl = '/tutorials/create-and-complete-task?waitForStart&speed=1'
 
 test.setTimeout(180_000)
+
+test('Narration assets retain ElevenLabs alignment data', async () => {
+  for (const entry of speechEntries) {
+    const alignment = JSON.parse(
+      await readFile(
+        path.resolve(import.meta.dirname, '..', entry.alignmentAssetPath),
+        'utf8',
+      ),
+    )
+
+    expect(alignment.characters.join('')).toBe(entry.text)
+    expect(alignment.character_start_times_seconds).toHaveLength(
+      alignment.characters.length,
+    )
+    expect(alignment.character_end_times_seconds).toHaveLength(
+      alignment.characters.length,
+    )
+  }
+})
 
 const readTutorialOutcome = page =>
   page.evaluate(() => {

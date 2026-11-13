@@ -39,8 +39,8 @@ dependencies are pinned to tested commits in `package.json`.
 
 The included deterministic walkthrough creates a two-column workflow, adds a
 task, and drags the task to **Done**. Each product action is narrated through
-`TourWithSpeech`; the committed speech assets make playback and recording
-credential-free. Run it in a browser at
+`TourWithSpeech`; the committed ElevenLabs MP3 and alignment assets make
+playback and recording credential-free. Run it in a browser at
 <http://localhost:3000/tutorials/create-and-complete-task?controls>.
 
 ### Watch the narrated tutorial

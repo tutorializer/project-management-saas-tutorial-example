@@ -47,7 +47,7 @@
       {
         "step": 7,
         "action": "type",
-        "selector": "[data-testid='new-card-form'] textarea",
+        "selector": "[data-testid='new-card-form'] input[name='title']",
         "value": "Publish the launch checklist",
         "description": "Enter a clear title for the task: Publish the launch checklist."
       },
